@@ -20,6 +20,9 @@ xml = "<?xml version=\"1.0\">" +
 xml = xml
     .replace(/<\?xml[a-zA-Z0-9\s\:\"\.=]+>/, "") // REMOVE O INICIO "<?XML ...."
     .replace(/<[a-zA-Z0-9:]*\/>/g, "") // REMOVE TAGS SEM VALOR
+    // PARA ARQUIVOS SOAP
+    //.replace(/(<\?xml)[\s\S]*<return>/, "<return>") // REMOVE O INICIO
+    //.replace(/<\/return>[\s\S]*<\/soapenv:Envelope>/, "<\/return>") // REMOVE O FIM
 
 // CRIAR OBJETO QUE SERA GERADO
 const XMLNEW = {
