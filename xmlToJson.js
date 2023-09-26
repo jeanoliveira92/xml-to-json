@@ -1,51 +1,62 @@
-function convertToJson(o) {
+const xmlToJson = (o) => {
 
     // ENCONTRANDO NOS E PEGANDO O PRIMEIRO
     const nodeSearch = o.nodes.match(/<[a-zA-Z0-9:\"\s\.=]*>/)
 
+    // NÃO POSSUI FILHOS, É ATRIBUTO
     if (!nodeSearch) return o.nodes;
 
     // SELECIONAR A TAG QUE ABRE E REMOVE IDS SE HOUVER
     const nodeIn = nodeSearch[0].slice(0, -1).split(" ")[0] + ">"
 
     if (nodeIn) {
+        // SELECIONA TAG DE FECHAMENTO
         const nodeOut = o.nodes.match(new RegExp(nodeIn.slice(0, 1) + '/' + nodeIn.slice(1)))
 
-        console.log("HAUehuAEUAE", nodeIn, nodeOut)
+        // SELECIONA TAG E TODOS OS FILHOS
         const left = o.nodes.slice(0 + nodeIn.length, nodeOut.index);
+        // SELECIONA O RESTANTE NÂO SELECIONADO
         const right = nodeOut ? o.nodes.slice(nodeOut.index + (nodeOut ? nodeOut[0].length : 0)) : false
 
-        /* OBJETO */
+        // DELETA OS NOS PASSADOS
         delete o.nodes;
 
+        // SALVA O NOME DO OBJETO ATUAL
         const nodeName = nodeIn.slice(1, -1);
 
+        // RECURSIVIDADE PRA ESQUERDA
         if (left)
-            o[nodeName] = convertToJson({ nodes: left })
+            o[nodeName] = xmlToJson({ nodes: left })
 
+        // RECURSIVIDADE PRA DIREITA
         if (right) {
-            temp = convertToJson({ nodes: right })
+            leftChildren = xmlToJson({ nodes: right })
 
-            if (temp) {
-                const keyValue = Object.keys(temp)[0]
+            // SE RETORNOU CHAVES
+            if (leftChildren) {
+                // PEGA O OBJETO ROOT
+                const rootLeftKey = Object.keys(leftChildren)[0]
 
-                if (keyValue == nodeName) {
+                // VERIFICA SE O OBJETO ROOT É O MESMO QUE O DA RECURSIVIDADE ESQUERDA
+                // SE ELE É IGUAL, NÃO SE TRATA DE UM OBJETO, MAS DE UM VETOR, AI CONVERTE PRA VETOR
+                if (rootLeftKey == nodeName) {
                     const tempCopy = o[nodeName];
 
-                    if (Array.isArray(tempCopy) && Array.isArray(temp[keyValue]))
-                        o[nodeName] = [...tempCopy, ...temp[keyValue]]
+                    if (Array.isArray(tempCopy) && Array.isArray(leftChildren[rootLeftKey]))
+                        o[nodeName] = [...tempCopy, ...leftChildren[rootLeftKey]]
 
                     else if (Array.isArray(tempCopy))
-                        o[nodeName] = [...tempCopy, temp[keyValue]]
+                        o[nodeName] = [...tempCopy, leftChildren[rootLeftKey]]
 
-                    else if (Array.isArray(temp[keyValue]))
-                        o[nodeName] = [tempCopy, ...temp[keyValue]]
+                    else if (Array.isArray(leftChildren[rootLeftKey]))
+                        o[nodeName] = [tempCopy, ...leftChildren[rootLeftKey]]
 
                     else
-                        o[nodeName] = [tempCopy, temp[keyValue]]
+                        o[nodeName] = [tempCopy, leftChildren[rootLeftKey]]
 
+                    // SE O OBJETO ROOT NÃO É IGUAL, ENTÃO O RETONO É ATRIBUTOS
                 } else {
-                    o = { ...o, ...temp }
+                    o = { ...o, ...leftChildren }
                 }
             }
         }
@@ -55,27 +66,5 @@ function convertToJson(o) {
     return o
 }
 
-xml = "<?xml version=\"1.0\">" +
-    "<filmes>" +
-    "<filme id=\"1\">" +
-    "<titulo>O XML veste prada</titulo>" +
-    "<resumo>O filme mostra a elegância da XML na representação de dados estruturados e semi estruturados.</resumo>" +
-    "<genero>Aventura</genero>" +
-    "<genero>Documentário</genero>" +
-    "<elenco>" +
-    "<ator>Mark UPlanguage</ator>" +
-    "<ator>Mary well-Formed</ator>" +
-    "<ator>Sedna D. Atabase</ator>" +
-    "</elenco>" +
-    "</filme>" +
-    "</filmes>"
 
-xml = xml
-    .replace(/<\?xml[a-zA-Z0-9\s\:\"\.=]+>/, "") // REMOVE O INICIO "<?XML ...."
-    .replace(/<[a-zA-Z0-9:]*\/>/g, "") // REMOVE TAGS SEM VALOR
-
-XMLNEW = {
-    nodes: xml
-}
-
-convertToJson(XMLNEW)
+module.exports = xmlToJson;
