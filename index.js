@@ -24,13 +24,9 @@ xml = xml
     //.replace(/(<\?xml)[\s\S]*<return>/, "<return>") // REMOVE O INICIO
     //.replace(/<\/return>[\s\S]*<\/soapenv:Envelope>/, "<\/return>") // REMOVE O FIM
 
-// CRIAR OBJETO QUE SERA GERADO
-const XMLNEW = {
-    nodes: xml
-}
 
-// CHAMAR FUNCAO
-xmlToJson(XMLNEW)
+    // CHAMAR FUNCAO
+const jsonXML = xmlToJson(xml)
 
 // IMPRIME RESULTADO
-console.log(JSON.stringify(XMLNEW))
+console.log(JSON.stringify(jsonXML))
